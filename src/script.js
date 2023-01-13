@@ -28,6 +28,20 @@ gltfLoader.setDRACOLoader(dracoLoader)
 let mixer = null;
 let prevScrollPos = 0;
 
+const updateAllMaterials = () => {
+    scene.traverse((child) => {
+        if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+            // child.material.envMap = environmentMap
+            child.material.envMapIntensity = debugObject.envMapIntensity
+            child.material.needsUpdate = true
+            child.castShadow = true
+            child.receiveShadow = true
+        }
+    })
+}
+
+
+
 gltfLoader.load(
     '/models/pls.glb',
     (gltf) => {
@@ -45,10 +59,12 @@ gltfLoader.load(
 
 
             // Play the animation
+            updateAllMaterials()
             action.play();
         }
         gltf.scene.scale.set(0.5, 0.5, 0.5);
         scene.add(gltf.scene);
+        console.log(gltf);
     },
 );
 
@@ -153,12 +169,29 @@ controls.enableDamping = true
 /**
  * Renderer
  */
+// const renderer = new THREE.WebGLRenderer({
+//     canvas: canvas,
+//     alpha: true
+// })
+// renderer.shadowMap.enabled = true
+// renderer.shadowMap.type = THREE.PCFSoftShadowMap
+// renderer.setSize(sizes.width, sizes.height)
+// renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+
+
 const renderer = new THREE.WebGLRenderer({
     canvas: canvas,
+    antialias: true,
     alpha: true
 })
+renderer.physicallyCorrectLights = true
+renderer.outputEncoding = THREE.sRGBEncoding
+renderer.toneMapping = THREE.CineonToneMapping
+renderer.toneMappingExposure = 1.75
 renderer.shadowMap.enabled = true
 renderer.shadowMap.type = THREE.PCFSoftShadowMap
+
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
