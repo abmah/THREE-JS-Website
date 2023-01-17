@@ -1,114 +1,101 @@
 import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import * as dat from 'lil-gui'
+import * as dat from 'dat.gui'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
+import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js';
+
 /**
  * Base
  */
-// Debug
-// const gui = new dat.GUI()
+const gui = new dat.GUI()
 
-// Canvas
 const canvas = document.querySelector('canvas.webgl')
-
-// Scene
+gui.hide()
 const scene = new THREE.Scene()
-
+let startRotating = false
 /**
  * Models
  */
-const dracoLoader = new DRACOLoader()
-dracoLoader.setDecoderPath('/draco/')
 const gltfLoader = new GLTFLoader()
-gltfLoader.setDRACOLoader(dracoLoader)
-
-
-let mixer = null;
-let prevScrollPos = 0;
+const TextureLoader = new THREE.CubeTextureLoader()
 
 const updateAllMaterials = () => {
     scene.traverse((child) => {
         if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
-            // child.material.envMap = environmentMap
             child.material.envMapIntensity = debugObject.envMapIntensity
-            child.material.needsUpdate = true
-            child.castShadow = true
             child.receiveShadow = true
+            child.castShadow = true
+            child.material.needsUpdate = true
         }
     })
 }
+const debugObject = {}
+const environmentMap = TextureLoader.load(
+    [
+        '/environmentMap/px.jpg',
+        '/environmentMap/nx.jpg',
+        '/environmentMap/py.jpg',
+        '/environmentMap/ny.jpg',
+        '/environmentMap/pz.jpg',
+        '/environmentMap/nz.jpg'
 
-
-
+    ]
+)
+environmentMap.encoding = THREE.sRGBEncoding
+scene.environment = environmentMap
+scene.background = environmentMap
+debugObject.envMapIntensity = 5
+gui.add(debugObject, 'envMapIntensity').min(0).max(10).step(0.001).onChange(updateAllMaterials)
+let cameraMiddle = null
 gltfLoader.load(
-    '/models/pls.glb',
+    '/models/camera2.glb',
     (gltf) => {
-        mixer = new THREE.AnimationMixer(gltf.scene);
 
-        // Iterate through the animations array
-        for (let i = 0; i < gltf.animations.length; i++) {
-            // Get the animation clip
-            const clip = gltf.animations[i];
-
-            // Create an action for the animation
-            const action = mixer.clipAction(clip);
-
-            // Set the time scale to 1 to play the animation forward
-
-
-            // Play the animation
-            updateAllMaterials()
-            action.play();
-        }
-        gltf.scene.scale.set(0.5, 0.5, 0.5);
-        scene.add(gltf.scene);
-        console.log(gltf);
+        gltf.scene.scale.set(3, 3, 3);
+        gltf.scene.position.set(-0.17, 0.23, 5.85);
+        const folder = gui.addFolder('cameraObject')
+        folder.add(gltf.scene.position, 'x').min(-3).max(3).step(0.01).name('positionX')
+        folder.add(gltf.scene.position, 'y').min(-3).max(3).step(0.01).name('positionY')
+        folder.add(gltf.scene.position, 'z').min(-3).max(10).step(0.01).name('positionZ')
+        folder.add(gltf.scene.rotation, 'x').min(-3).max(3).step(0.01).name('rotationX')
+        folder.add(gltf.scene.rotation, 'y').min(-3).max(3).step(0.01).name('rotationY')
+        folder.add(gltf.scene.rotation, 'z').min(-3).max(3).step(0.01).name('rotationZ')
+        folder.add(gltf.scene.scale, 'x').min(-3).max(3).step(0.01).name('scaleX')
+        folder.add(gltf.scene.scale, 'y').min(-3).max(3).step(0.01).name('scaleY')
+        folder.add(gltf.scene.scale, 'z').min(-3).max(3).step(0.01).name('scaleZ')
+        updateAllMaterials()
+        cameraMiddle = gltf.scene
+        scene.add(cameraMiddle);
     },
 );
 
-const animationDuration = 0.8333333134651184;
-const animationLength = 3000; // total length of animation in pixels
-let prevTime = performance.now();
-
-window.addEventListener('scroll', () => {
-    // Get the current scroll position and time
-    const scrollPos = Math.abs(window.scrollY + 1);
-    const time = performance.now();
-
-    // Compute the time delta based on the animation duration and scroll delta
-    const delta = (scrollPos - prevScrollPos) / animationLength * animationDuration;
-    prevTime = time;
-
-    // Update the animation with the time delta
-    if (mixer) {
-        mixer.update(delta);
-    }
-
-    // Update the previous scroll position
-    prevScrollPos = scrollPos;
-});
 /**
  * Floor
  */
-// const floor = new THREE.Mesh(
-//     new THREE.PlaneGeometry(10, 10),
-//     new THREE.MeshStandardMaterial({
-//         color: '#444444',
-//         metalness: 0,
-//         roughness: 0.5
-//     })
-// )
-// floor.receiveShadow = true
-// floor.rotation.x = - Math.PI * 0.5
-// scene.add(floor)
+const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(10, 10),
+    new THREE.MeshStandardMaterial({
+        color: '#444444',
+        metalness: 1,
+        roughness: 0.2,
+    })
+)
+floor.receiveShadow = true
+floor.rotation.x = - Math.PI * 0.5
+const floorGui = gui.addFolder('floor')
+floorGui.add(floor.material, 'metalness').min(0).max(1).step(0.001).name('metalness')
+floorGui.add(floor.material, 'roughness').min(0).max(1).step(0.001).name('roughness')
+
+scene.add(floor)
 
 /**
  * Lights
  */
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.8)
 scene.add(ambientLight)
+const folder = gui.addFolder('lightAmbient')
+folder.add(ambientLight, 'intensity').min(0).max(3).step(0.001).name('intensity')
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6)
 directionalLight.castShadow = true
@@ -118,19 +105,39 @@ directionalLight.shadow.camera.left = - 7
 directionalLight.shadow.camera.top = 7
 directionalLight.shadow.camera.right = 7
 directionalLight.shadow.camera.bottom = - 7
-directionalLight.position.set(5, 5, 5)
+directionalLight.position.set(-6, 5, 5)
 scene.add(directionalLight)
+const parameters = {
+    color: 0xff0000
+}
+
+const directionalLightFolder = gui.addFolder('light')
+directionalLightFolder.add(directionalLight.position, 'x').min(-6).max(6).step(0.01).name('positionX')
+directionalLightFolder.add(directionalLight.position, 'y').min(-6).max(6).step(0.01).name('positionY')
+directionalLightFolder.add(directionalLight.position, 'z').min(-6).max(6).step(0.01).name('positionZ')
+directionalLightFolder.add(directionalLight, 'intensity').min(0).max(3).step(0.001).name('intensity')
+directionalLightFolder.addColor(parameters, 'color').onChange(() => {
+    directionalLight.color.set(parameters.color)
+})
+
+const LightPos = { x: directionalLight.position.x, y: directionalLight.position.y, z: directionalLight.position.z };
+const newLightPos = { x: 6, y: 2, z: -2 };
+const lightTween = new TWEEN.Tween(LightPos)
+    .to(newLightPos, 1000)
+    .easing(TWEEN.Easing.Quadratic.InOut)
+    .onUpdate(() => {
+        directionalLight.position.set(LightPos.x, LightPos.y, LightPos.z);
+    })
+    .onComplete(() => {
+        setTimeout(() => {
+            cameraTween.start();
+        }, 1000);
+    });
+setTimeout(() => {
+    lightTween.start();
+}, 1000);
 
 
-
-// const pointLight = new THREE.PointLight(
-//     0xffffff,
-//     0.6,
-//     10
-
-// )
-// pointLight.position.set(3, 3, 3)
-// scene.add(pointLight)
 /**
  * Sizes
  */
@@ -140,83 +147,124 @@ const sizes = {
 }
 
 window.addEventListener('resize', () => {
-    // Update sizes
     sizes.width = window.innerWidth
     sizes.height = window.innerHeight
 
-    // Update camera
     camera.aspect = sizes.width / sizes.height
     camera.updateProjectionMatrix()
 
-    // Update renderer
     renderer.setSize(sizes.width, sizes.height)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
+// Select the canvas element
 
+
+// Add a mousedown event listener to the canvas
+canvas.addEventListener('mousedown', () => {
+    // Change the cursor to "grabbing"
+    canvas.style.cursor = 'grabbing';
+});
+
+// Add a mouseup event listener to the canvas
+canvas.addEventListener('mouseup', () => {
+    // Change the cursor back to "grab"
+    canvas.style.cursor = 'grab';
+});
 /**
  * Camera
  */
-// Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.set(2, 2, 2)
+camera.position.set(0.23, 0.67, 1.11)
+// add position to dat gui
+const cameraFolder = gui.addFolder('camera')
+cameraFolder.add(camera.position, 'x').min(-3).max(3).step(0.01).name('positionX')
+cameraFolder.add(camera.position, 'y').min(-3).max(3).step(0.01).name('positionY')
+cameraFolder.add(camera.position, 'z').min(-3).max(3).step(0.01).name('positionZ')
+
 scene.add(camera)
 
-// Controls
+const cameraPos = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+const newPos = { x: 2, y: 2, z: 1 };
+const cameraTween = new TWEEN.Tween(cameraPos)
+    .to(newPos, 1000)
+    .easing(TWEEN.Easing.Quadratic.InOut)
+    .onUpdate(() => {
+        camera.position.set(cameraPos.x, cameraPos.y, cameraPos.z);
+    })
+    .onComplete(() => {
+        setTimeout(() => {
+            cameraTween2.start();
+        }, 1000);
+    });
+
+//Create the second animation and chain it with the first animation
+const newPos2 = { x: 5, y: 2, z: 5 };
+const cameraTween2 = new TWEEN.Tween(cameraPos)
+    .to(newPos2, 2000)
+    .easing(TWEEN.Easing.Quadratic.InOut)
+    .onUpdate(() => {
+        camera.position.set(cameraPos.x, cameraPos.y, cameraPos.z);
+    })
+    .onComplete(() => {
+        setTimeout(() => {
+            cameraTween3.start();
+        }, 1000);
+    });
+
+const newPos3 = { x: 0.67, y: 0.45, z: -1.76 };
+const cameraTween3 = new TWEEN.Tween(cameraPos)
+    .to(newPos3, 1000)
+    .easing(TWEEN.Easing.Quadratic.InOut)
+    .onUpdate(() => {
+        camera.position.set(cameraPos.x, cameraPos.y, cameraPos.z);
+    })
+    .onComplete(() => {
+        controls.enabled = true;
+        startRotating = true;
+    });
+
+
+
 const controls = new OrbitControls(camera, canvas)
 controls.target.set(0, 0.75, 0)
 controls.enableDamping = true
-
-/**
- * Renderer
- */
-// const renderer = new THREE.WebGLRenderer({
-//     canvas: canvas,
-//     alpha: true
-// })
-// renderer.shadowMap.enabled = true
-// renderer.shadowMap.type = THREE.PCFSoftShadowMap
-// renderer.setSize(sizes.width, sizes.height)
-// renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-
-
-
+controls.enabled = false
+controls.dampingFactor = 0.04
+controls.rotateSpeed = 1.4
 const renderer = new THREE.WebGLRenderer({
     canvas: canvas,
     antialias: true,
     alpha: true
 })
-renderer.physicallyCorrectLights = true
-renderer.outputEncoding = THREE.sRGBEncoding
-renderer.toneMapping = THREE.CineonToneMapping
-renderer.toneMappingExposure = 1.75
-renderer.shadowMap.enabled = true
-renderer.shadowMap.type = THREE.PCFSoftShadowMap
-
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+renderer.physicallyCorrectLights = true
+renderer.outputEncoding = THREE.sRGBEncoding
+renderer.toneMapping = THREE.ReinhardToneMapping
+renderer.toneMappingExposure = 3
+renderer.shadowMap.enabled = true
+renderer.shadowMap.type = THREE.PCFSoftShadowMap
+gui.add(renderer, 'toneMappingExposure').min(0).max(10).step(0.001)
 
-/**
- * Animate
- */
+
+
 const clock = new THREE.Clock()
 let previousTime = 0
+
+
+
+// object in the middle
 
 const tick = () => {
     const elapsedTime = clock.getElapsedTime()
     const deltaTime = elapsedTime - previousTime
     previousTime = elapsedTime
 
-    // Update controls
     controls.update()
 
-    // Mixer update
-    // if (mixer) {
-    //     mixer.update(deltaTime)
-    // }
-    // Render
+    TWEEN.update();
     renderer.render(scene, camera)
 
-    // Call tick again on the next frame
     window.requestAnimationFrame(tick)
 }
 
