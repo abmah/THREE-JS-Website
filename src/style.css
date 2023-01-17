@@ -1,7 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@100;200;300;400;500&display=swap');
-
 * {
-
     margin: 0;
     padding: 0;
 }
@@ -14,10 +11,30 @@ body {} */
     top: 0;
     left: 0;
     outline: none;
-    z-index: 0;
+    z-index: -1;
 }
 
-body,
-html {
-    overflow-x: none;
+.first-title {
+    color: white;
+    font-size: 40px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    margin-top: 22vw;
+    margin-left: 20px;
+}
+
+.second-title {
+    color: white;
+    font-size: 40px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    margin-top: 82vw;
+    margin-left: 20px;
+}
+
+.third-title {
+    color: white;
+    font-size: 40px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    margin-top: 122vw;
+    margin-left: 20px;
+    margin-bottom: 30vw;
 }
