@@ -1,6 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300&display=swap');
+
 * {
     margin: 0;
     padding: 0;
+    color: #ffffff;
+    font-family: 'Raleway', sans-serif;
 }
 
 /* html,
@@ -11,30 +15,38 @@ body {} */
     top: 0;
     left: 0;
     outline: none;
-    z-index: -1;
+
 }
 
-.first-title {
-    color: white;
-    font-size: 40px;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    margin-top: 22vw;
-    margin-left: 20px;
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: 30px;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    z-index: -4;
+    background-color: white;
 }
 
-.second-title {
-    color: white;
-    font-size: 40px;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    margin-top: 82vw;
-    margin-left: 20px;
+h1 {
+    font-size: 6vw;
+    font-weight: 600;
+    mix-blend-mode: difference;
+    user-select: none;
+    pointer-events: none;
 }
 
-.third-title {
-    color: white;
-    font-size: 40px;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    margin-top: 122vw;
-    margin-left: 20px;
-    margin-bottom: 30vw;
+.btn {
+    padding: 20px;
+    color: black;
+    font-weight: 400;
+    font-size: 1.5vw;
+    border: 1px solid black;
+    outline: none;
+    border-radius: 10px;
+    background-color: white;
+    pointer-events: all;
 }

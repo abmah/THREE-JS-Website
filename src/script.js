@@ -4,14 +4,70 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'dat.gui'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js';
+import { gsap } from 'gsap';
 
+// console.log(gsap);
 /**
  * Base
  */
 const gui = new dat.GUI()
 
+const myText = document.querySelector('.my-text');
+const myText2 = document.querySelector('.my-text2');
+const myText3 = document.querySelector('.my-text3');
+const myText4 = document.querySelector('.my-text4');
+// Set the initial state of the element to be hidden
+gsap.set(myText, { opacity: 0, y: 50 });
+gsap.set(myText2, { opacity: 0, y: 50 });
+gsap.set(myText3, { opacity: 0, y: 50 });
+gsap.set(myText4, { opacity: 0, y: 50 });
+
+
+// enable controlls when button is clicked and hide the button
+
+// Create a timeline
+const tl = gsap.timeline({ repeat: 0, yoyo: true });
+
+// Add the animation to the timeline
+tl.to(myText, { duration: 3, opacity: 1, y: 0, ease: 'power3.out', delay: 1 })
+    .to(myText, {
+        duration: 1, opacity: 0, y: 50, delay: 2, onComplete: function () {
+            myText.style.display = 'none';
+        }
+    })
+    .to(myText2, {
+        duration: 3, opacity: 1, y: 0, ease: 'power3.out', delay: 4,
+    })
+    .to(myText2, {
+        duration: 1, opacity: 0, y: 50, delay: 2, onComplete: function () {
+            myText2.style.display = 'none';
+        }
+    })
+    .to(myText3, {
+        duration: 3, opacity: 1, y: 0, ease: 'power3.out', delay: 2,
+    })
+    .to(myText3, {
+        duration: 1, opacity: 0, y: 50, delay: 2,
+    })
+    .to(myText4, {
+        duration: 3, opacity: 1, y: 0, ease: 'power3.out', delay: 0, display: 'block',
+        onComplete: function () {
+            controls.enabled = true;
+        }
+    })
+    .to(myText4, {
+        duration: 1, opacity: 0, y: 50, delay: 3,
+    })
+
+
+
+// Play the animation
+tl.play();
+
+
+
 const canvas = document.querySelector('canvas.webgl')
-gui.hide()
+// gui.hide()
 const scene = new THREE.Scene()
 let startRotating = false
 /**
@@ -44,7 +100,7 @@ const environmentMap = TextureLoader.load(
 )
 environmentMap.encoding = THREE.sRGBEncoding
 scene.environment = environmentMap
-scene.background = environmentMap
+
 debugObject.envMapIntensity = 5
 gui.add(debugObject, 'envMapIntensity').min(0).max(10).step(0.001).onChange(updateAllMaterials)
 let cameraMiddle = null
@@ -123,19 +179,33 @@ directionalLightFolder.addColor(parameters, 'color').onChange(() => {
 const LightPos = { x: directionalLight.position.x, y: directionalLight.position.y, z: directionalLight.position.z };
 const newLightPos = { x: 6, y: 2, z: -2 };
 const lightTween = new TWEEN.Tween(LightPos)
-    .to(newLightPos, 1000)
+    .to(newLightPos, 5000)
     .easing(TWEEN.Easing.Quadratic.InOut)
     .onUpdate(() => {
         directionalLight.position.set(LightPos.x, LightPos.y, LightPos.z);
     })
     .onComplete(() => {
         setTimeout(() => {
-            cameraTween.start();
+
+            reverseLightTween.start();
         }, 1000);
     });
+
+const reverseNewLightPos = { x: directionalLight.position.x, y: directionalLight.position.y, z: directionalLight.position.z };
+const reverseLightTween = new TWEEN.Tween(LightPos)
+    .to(reverseNewLightPos, 2000)
+    .easing(TWEEN.Easing.Quadratic.InOut)
+    .onUpdate(() => {
+        directionalLight.position.set(LightPos.x, LightPos.y, LightPos.z);
+    })
+    .onComplete(() => {
+        cameraTween.start();
+    });
+
 setTimeout(() => {
     lightTween.start();
 }, 1000);
+
 
 
 /**
@@ -186,7 +256,7 @@ scene.add(camera)
 const cameraPos = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
 const newPos = { x: 2, y: 2, z: 1 };
 const cameraTween = new TWEEN.Tween(cameraPos)
-    .to(newPos, 1000)
+    .to(newPos, 2000)
     .easing(TWEEN.Easing.Quadratic.InOut)
     .onUpdate(() => {
         camera.position.set(cameraPos.x, cameraPos.y, cameraPos.z);
@@ -194,7 +264,7 @@ const cameraTween = new TWEEN.Tween(cameraPos)
     .onComplete(() => {
         setTimeout(() => {
             cameraTween2.start();
-        }, 1000);
+        }, 3000);
     });
 
 //Create the second animation and chain it with the first animation
@@ -208,7 +278,7 @@ const cameraTween2 = new TWEEN.Tween(cameraPos)
     .onComplete(() => {
         setTimeout(() => {
             cameraTween3.start();
-        }, 1000);
+        }, 2000);
     });
 
 const newPos3 = { x: 0.67, y: 0.45, z: -1.76 };
@@ -219,8 +289,21 @@ const cameraTween3 = new TWEEN.Tween(cameraPos)
         camera.position.set(cameraPos.x, cameraPos.y, cameraPos.z);
     })
     .onComplete(() => {
-        controls.enabled = true;
+        setTimeout(() => {
+            cameraTween4.start();
+        }, 5000);
+    });
+const newPos4 = { x: 0.47, y: 0.6, z: 1.92 };
+const cameraTween4 = new TWEEN.Tween(cameraPos)
+    .to(newPos4, 1000)
+    .easing(TWEEN.Easing.Quadratic.InOut)
+    .onUpdate(() => {
+        camera.position.set(cameraPos.x, cameraPos.y, cameraPos.z);
+    })
+    .onComplete(() => {
+        // controls.enabled = true;
         startRotating = true;
+
     });
 
 

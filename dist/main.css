@@ -11,18 +11,32 @@ body {} */
     top: 0;
     left: 0;
     outline: none;
-    z-index: 0;
-
+    z-index: -1;
 }
 
-
-.main {
-    z-index: 3;
-    position: relative;
+.first-title {
+    color: white;
+    font-size: 40px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    margin-top: 22vw;
+    margin-left: 20px;
 }
 
-h1 {
-    visibility: hidden;
+.second-title {
+    color: white;
+    font-size: 40px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    margin-top: 82vw;
+    margin-left: 20px;
+}
+
+.third-title {
+    color: white;
+    font-size: 40px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    margin-top: 122vw;
+    margin-left: 20px;
+    margin-bottom: 30vw;
 }
 
 /*# sourceMappingURL=main.css.map*/
